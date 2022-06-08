@@ -1,5 +1,6 @@
 package com.de4oult.soda.parser.ast;
 
+import com.de4oult.soda.lib.Value;
 import com.de4oult.soda.lib.Variables;
 
 public final class AssignmentStatement implements Statement {
@@ -14,7 +15,7 @@ public final class AssignmentStatement implements Statement {
 	
 	@Override
 	public void execute() {
-		final double result = expression.eval();
+		final Value result = expression.eval();
 		Variables.set(variable, result);
 	}
 	

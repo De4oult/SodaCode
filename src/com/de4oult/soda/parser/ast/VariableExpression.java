@@ -1,23 +1,24 @@
 package com.de4oult.soda.parser.ast;
 
+import com.de4oult.soda.lib.Value;
 import com.de4oult.soda.lib.Variables;
 
-public final class VariablesExpression implements Expression {
+public final class VariableExpression implements Expression {
 
 	private final String name;
 	
-	public VariablesExpression(String name) {
+	public VariableExpression(String name) {
 		this.name = name; 
 	}
 	
 	@Override
-	public double eval() {
+	public Value eval() {
 		if(!Variables.isExists(name)) throw new RuntimeException("Данной константы не существует");
 		return Variables.get(name);
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s [%f]", name, Variables.get(name));
+		return String.format("%s", name);
 	}
 }

@@ -1,5 +1,8 @@
 package com.de4oult.soda.parser.ast;
 
+import com.de4oult.soda.lib.NumberValue;
+import com.de4oult.soda.lib.Value;
+
 public final class UnaryExpression implements Expression {
 
 	private final Expression expr1;
@@ -11,9 +14,9 @@ public final class UnaryExpression implements Expression {
 	}
 
 	@Override
-	public double eval() {
+	public Value eval() {
 		switch(operation) {
-			case '-': return -expr1.eval();
+			case '-': return new NumberValue(-expr1.eval().asNumber());
 			case '+':
 			default:
 				return expr1.eval();
