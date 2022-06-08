@@ -11,7 +11,8 @@ public final class Variables {
 		variables = new HashMap<>();
 		variables.put("PI", new NumberValue(Math.PI));
 		variables.put("E", new NumberValue(Math.E));
-		variables.put("SODA", new NumberValue(0.5));		
+		variables.put("SODA", new NumberValue(0.5));
+		variables.put("CHRISTINE", new NumberValue(16));
 	}
 	
 	public static boolean isExists(String key) {
