@@ -6,7 +6,7 @@ import com.de4oult.soda.lib.Value;
 
 public final class BinaryExpression implements Expression {
 
-	private Expression expr1, expr2;
+	private final Expression expr1, expr2;
 	private final char operation;
 	
 	public BinaryExpression(char operation, Expression expr1, Expression expr2) {

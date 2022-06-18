@@ -7,17 +7,29 @@ public enum TokenType {
 	WORD, // WORD
 	TEXT, // "TEXT"
 	
-	//keywords
+	// types of data
+	STRING,
+	INTEGER,
+	FLOAT,
+	CHAR,
+	
+	// keywords
+	LET,
 	DISP,
 	IF,
 	ELSE,
+	FOR,
+	WHILE,
+	DO,
+	CONTINUE,
+	REST,
+	FUNC,
+	RETURN,
 	
 	PLUS, // +
 	MINUS, // -
 	STAR, // *
 	SLASH, // /
-	INCREMENT, // word++
-	DECREMENT, // word--
 	EQUALS, // =
 	EQEQ, // ==
 	EXCL, // !
@@ -34,6 +46,10 @@ public enum TokenType {
 	
 	LPAREN, // (
 	RPAREN, // )
+	LBRACE, // {
+	RBRACE, // }
+	COMMA, // ,
+	DOTCOMMA, // ;
 	
 	EOF // End of File
 }

@@ -5,14 +5,24 @@ import java.util.List;
 
 import com.de4oult.soda.parser.ast.AssignmentStatement;
 import com.de4oult.soda.parser.ast.BinaryExpression;
+import com.de4oult.soda.parser.ast.BlockStatement;
 import com.de4oult.soda.parser.ast.ConditionalExpression;
+import com.de4oult.soda.parser.ast.ContinueStatement;
 import com.de4oult.soda.parser.ast.DisplayStatement;
+import com.de4oult.soda.parser.ast.DoWhileStatement;
 import com.de4oult.soda.parser.ast.Expression;
+import com.de4oult.soda.parser.ast.ForStatement;
+import com.de4oult.soda.parser.ast.FunctionDefine;
+import com.de4oult.soda.parser.ast.FunctionStatement;
+import com.de4oult.soda.parser.ast.FunctionalExpression;
 import com.de4oult.soda.parser.ast.IfStatement;
+import com.de4oult.soda.parser.ast.RestStatement;
+import com.de4oult.soda.parser.ast.ReturnStatement;
 import com.de4oult.soda.parser.ast.Statement;
 import com.de4oult.soda.parser.ast.UnaryExpression;
 import com.de4oult.soda.parser.ast.ValueExpression;
 import com.de4oult.soda.parser.ast.VariableExpression;
+import com.de4oult.soda.parser.ast.WhileStatement;
 
 public final class Parser {
     
@@ -28,12 +38,26 @@ public final class Parser {
         size = tokens.size();
     }
     
-    public List<Statement> parse() {
-        final List<Statement> result = new ArrayList<>();
+    public Statement parse() {
+    	final BlockStatement result = new BlockStatement();
         while(!match(TokenType.EOF)) {
             result.add(statement());
         }
         return result;
+    }
+    
+    private Statement block() {
+    	final BlockStatement block = new BlockStatement();
+    	consume(TokenType.LBRACE);
+    	while(!match(TokenType.RBRACE)) {
+    		block.add(statement());
+    	}
+    	return block;
+    }
+    
+    private Statement statementOrBlock() {
+    	if(get(0).getType() == TokenType.LBRACE) return block();
+    	return statement();
     }
     
     private Statement statement() {
@@ -42,6 +66,30 @@ public final class Parser {
         }
         if(match(TokenType.IF)) {
             return ifElse();
+        }
+        if(match(TokenType.FOR)) {
+        	return forStatement();
+        }
+        if(match(TokenType.WHILE)) {
+        	return whileStatement();
+        }
+        if(match(TokenType.DO)) {
+        	return doWhileStatement();
+        }
+        if(match(TokenType.CONTINUE)) {
+        	return new ContinueStatement();
+        }
+        if(match(TokenType.REST)) {
+        	return new RestStatement();
+        }
+        if(match(TokenType.RETURN)) {
+        	return new ReturnStatement(expression());
+        }
+        if(match(TokenType.FUNC)) {
+        	return functionDefine();
+        }
+        if(get(0).getType() == TokenType.WORD && get(1).getType() == TokenType.LPAREN) {
+        	return new FunctionStatement(function());
         }
         return assignmentStatement();
     }
@@ -58,11 +106,11 @@ public final class Parser {
     
     private Statement ifElse() {
         final Expression condition = expression();
-        final Statement ifStatement = statement();
+        final Statement ifStatement = statementOrBlock();
         final Statement elseStatement;
         
         if(match(TokenType.ELSE)) {
-            elseStatement = statement();
+            elseStatement = statementOrBlock();
         } 
         else {
             elseStatement = null;
@@ -70,6 +118,53 @@ public final class Parser {
         return new IfStatement(condition, ifStatement, elseStatement);
     }
     
+    private Statement whileStatement() {
+        final Expression condition = expression();
+        final Statement statement = statementOrBlock();
+    	return new WhileStatement(condition, statement);
+    }
+    
+    private Statement doWhileStatement() {
+        final Statement statement = statementOrBlock();
+        consume(TokenType.WHILE);
+        final Expression condition = expression();
+    	return new DoWhileStatement(condition, statement);
+    }
+    
+    private Statement forStatement() {
+    	match(TokenType.LPAREN);
+    	final Statement initialization = assignmentStatement();
+    	consume(TokenType.DOTCOMMA);
+    	final Expression termination = expression();
+    	consume(TokenType.DOTCOMMA);
+    	final Statement increment = assignmentStatement();
+    	match(TokenType.RPAREN);
+    	final Statement statement = statementOrBlock();
+    	return new ForStatement(initialization, termination, increment, statement);
+    }
+    
+    private FunctionDefine functionDefine() {
+    	final String name = consume(TokenType.WORD).getText();
+    	consume(TokenType.LPAREN);
+    	final List<String> argNames = new ArrayList<>();
+    	while(!match(TokenType.RPAREN)) {
+    		argNames.add(consume(TokenType.WORD).getText());
+    		match(TokenType.COMMA);
+    	}
+    	final Statement body = statementOrBlock();
+    	return new FunctionDefine(name, argNames, body);
+    }
+    
+    private FunctionalExpression function() {
+    	final String name = consume(TokenType.WORD).getText();
+    	consume(TokenType.LPAREN);
+    	final FunctionalExpression function = new FunctionalExpression(name);
+    	while(!match(TokenType.RPAREN)) {
+    		function.addArgument(expression());
+    		match(TokenType.COMMA);
+    	}
+    	return function;
+    }
     
     private Expression expression() {
         return logicalOr();
@@ -177,22 +272,10 @@ public final class Parser {
         return result;
     }
     
-    /*private Expression upDown() {
-    	Expression result = unary();
-    	
-    	if(match(TokenType.INCREMENT)) {
-    		result = new IncrementExpression("++", unary());
-    	}
-    	if(match(TokenType.DECREMENT)) {
-    		result = new IncrementExpression("--", unary());
-    	}
-    	return result;
-    }*/
-    
     private Expression unary() {
-        if(match(TokenType.MINUS)) {
-            return new UnaryExpression('-', primary());
-        }
+    	if(match(TokenType.MINUS)) {
+    		return new UnaryExpression('-', primary());
+    	}
         if(match(TokenType.PLUS)) {
             return primary();
         }
@@ -206,6 +289,9 @@ public final class Parser {
         }
         if(match(TokenType.HEX_NUMBER)) {
             return new ValueExpression(Long.parseLong(current.getText(), 16));
+        }
+        if(get(0).getType() == TokenType.WORD && get(1).getType() == TokenType.LPAREN) {
+        	return function();
         }
         if(match(TokenType.WORD)) {
             return new VariableExpression(current.getText());

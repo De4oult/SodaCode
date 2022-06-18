@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class Lexer {
-	private static final String OPERATOR_CHARS = "+-*/()=<>!&|";
+	private static final String OPERATOR_CHARS = "+-*/(){}=<>!&|;,";
 	
 	private static final Map<String, TokenType> OPERATORS;
 	static {
@@ -17,9 +17,13 @@ public final class Lexer {
 		OPERATORS.put("/", TokenType.SLASH);
 		OPERATORS.put("(", TokenType.LPAREN);
 		OPERATORS.put(")", TokenType.RPAREN);
+		OPERATORS.put("{", TokenType.LBRACE);
+		OPERATORS.put("}", TokenType.RBRACE);
 		OPERATORS.put("=", TokenType.EQUALS);
 		OPERATORS.put("<", TokenType.LT);
 		OPERATORS.put(">", TokenType.GT);
+		OPERATORS.put(",", TokenType.COMMA);
+		OPERATORS.put(";", TokenType.DOTCOMMA);
 
 		OPERATORS.put("!", TokenType.EXCL);
 		OPERATORS.put("&", TokenType.AMP);
@@ -33,8 +37,8 @@ public final class Lexer {
 		OPERATORS.put("&&", TokenType.AMPAMP);
 		OPERATORS.put("||", TokenType.BARBAR);
 
-		OPERATORS.put("++", TokenType.INCREMENT);
-		OPERATORS.put("--", TokenType.DECREMENT);
+		//OPERATORS.put("++", TokenType.INCREMENT);
+		//OPERATORS.put("--", TokenType.DECREMENT);
 	}
 	
 	private final String input;
@@ -149,6 +153,13 @@ public final class Lexer {
 			case "disp": addToken(TokenType.DISP); break;
 			case "if": addToken(TokenType.IF); break;
 			case "else": addToken(TokenType.ELSE); break;
+			case "while": addToken(TokenType.WHILE); break;
+			case "for": addToken(TokenType.FOR); break;
+			case "do": addToken(TokenType.DO); break;
+			case "continue": addToken(TokenType.CONTINUE); break;
+			case "rest": addToken(TokenType.REST); break;
+			case "func": addToken(TokenType.FUNC); break;
+			case "return": addToken(TokenType.RETURN); break;
 			default: 
 				addToken(TokenType.WORD, word);
 				break;
