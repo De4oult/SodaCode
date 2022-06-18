@@ -1,10 +1,8 @@
 package com.de4oult.soda.lib;
 
-//import java.io.BufferedReader;
-//import java.io.IOException;
-//import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public final class Functions {
 
@@ -25,31 +23,30 @@ public final class Functions {
 			}
 			return ZERO;
 		});
-		/*functions.put("get", (Function) (Value[] args) -> {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-			try {
-				return new StringValue(reader.readLine());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return null;						
+		functions.put("get", (Function) (Value[] args) -> {
+			@SuppressWarnings("resource")
+			Scanner sc = new Scanner(System.in);
+			StringValue value = new StringValue(sc.nextLine());
+			
+			if(value.asString().matches("((-|\\\\+)?[0-9]+(\\\\.[0-9]+)?)+")) return new NumberValue(value.asNumber());
+			
+			return new StringValue(value.asString());					
 		});
 		functions.put("getline", (Function) (Value[] args) -> {
 			if(args.length == 0) throw new RuntimeException("Пустое значение аргумента!"); 
 			if(args.length > 1) throw new RuntimeException("Функция принимает лишь один аргумент!"); 
-			for (Value arg : args) {
+		    for (Value arg : args) {
 				System.out.print(arg.asString());
 			}
-			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-			StringValue value;
-			try {
-				value = new StringValue(reader.readLine());
-				return value;	
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return null;
-		});*/
+			
+			@SuppressWarnings("resource")
+			Scanner sc = new Scanner(System.in);
+			StringValue value = new StringValue(sc.nextLine());
+			
+			if(value.asString().matches("((-|\\\\+)?[0-9]+(\\\\.[0-9]+)?)+")) return new NumberValue(value.asNumber());
+			
+			return new StringValue(value.asString());
+		});
 	}
 	
 	public static boolean isExists(String key) {
