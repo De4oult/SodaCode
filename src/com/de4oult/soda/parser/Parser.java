@@ -3,6 +3,9 @@ package com.de4oult.soda.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.de4oult.soda.parser.ast.ArrayAccessExpression;
+import com.de4oult.soda.parser.ast.ArrayAssignmentStatement;
+import com.de4oult.soda.parser.ast.ArrayExpression;
 import com.de4oult.soda.parser.ast.AssignmentStatement;
 import com.de4oult.soda.parser.ast.BinaryExpression;
 import com.de4oult.soda.parser.ast.BlockStatement;
@@ -95,11 +98,15 @@ public final class Parser {
     }
     
     private Statement assignmentStatement() {
-        final Token current = get(0);
-        if(match(TokenType.WORD) && get(0).getType() == TokenType.EQUALS) {
-            final String variable = current.getText();
+        if(lookMatch(0, TokenType.WORD) && lookMatch(1, TokenType.EQUALS)) {
+            final String variable = consume(TokenType.WORD).getText();
             consume(TokenType.EQUALS);
             return new AssignmentStatement(variable, expression());
+        }
+        if(lookMatch(0, TokenType.WORD) && lookMatch(1, TokenType.LBRACKET)) {
+        	ArrayAccessExpression array = element();
+            consume(TokenType.EQUALS);
+            return new ArrayAssignmentStatement(array, expression());
         }
         throw new RuntimeException("Неизвестное утверждение");
     }
@@ -164,6 +171,27 @@ public final class Parser {
     		match(TokenType.COMMA);
     	}
     	return function;
+    }
+    
+    private Expression array() {
+    	consume(TokenType.LBRACKET);
+    	final List<Expression> elements = new ArrayList<>();
+    	while(!match(TokenType.RBRACKET)) {
+    		elements.add(expression());
+    		match(TokenType.COMMA);
+    	}
+    	return new ArrayExpression(elements);
+    }
+    
+    private ArrayAccessExpression element() {
+        final String variable = consume(TokenType.WORD).getText();
+        List<Expression> indices = new ArrayList<>();
+        do {
+            consume(TokenType.LBRACKET);
+            indices.add(expression());
+            consume(TokenType.RBRACKET);        	
+        } while(lookMatch(0, TokenType.LBRACKET));
+        return new ArrayAccessExpression(variable, indices);    	
     }
     
     private Expression expression() {
@@ -290,8 +318,14 @@ public final class Parser {
         if(match(TokenType.HEX_NUMBER)) {
             return new ValueExpression(Long.parseLong(current.getText(), 16));
         }
-        if(get(0).getType() == TokenType.WORD && get(1).getType() == TokenType.LPAREN) {
+        if(lookMatch(0, TokenType.WORD) && lookMatch(1, TokenType.LPAREN)) {
         	return function();
+        }
+        if(lookMatch(0, TokenType.WORD) && lookMatch(1, TokenType.LBRACKET)) {
+        	return element();
+        }
+        if(lookMatch(0, TokenType.LBRACKET)) {
+            return array();
         }
         if(match(TokenType.WORD)) {
             return new VariableExpression(current.getText());
@@ -319,6 +353,10 @@ public final class Parser {
         if (type != current.getType()) return false;
         pos++;
         return true;
+    }
+    
+    private boolean lookMatch(int pos, TokenType type) {
+        return get(pos).getType() == type;
     }
     
     private Token get(int relativePosition) {

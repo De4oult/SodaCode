@@ -14,12 +14,15 @@ import com.de4oult.soda.parser.ast.Statement;
 public final class Main {
 	
 	public static void main(String[] args) throws IOException {
-			@SuppressWarnings("resource")
-			Scanner sc = new Scanner(System.in);
-			String pathToScript = sc.nextLine();
-			final String input = new String(Files.readAllBytes(Paths.get(pathToScript )), "UTF-8");
-			final List<Token> tokens = new Lexer(input).tokenize();
-			final Statement program = new Parser(tokens).parse();
-			program.execute();
+		System.out.print("Компилируемый файл >> ");
+			
+		@SuppressWarnings("resource")
+		Scanner sc = new Scanner(System.in);
+		String pathToScript = sc.nextLine();
+		System.out.println("\n\n");
+		final String input = new String(Files.readAllBytes(Paths.get(pathToScript )), "UTF-8");
+		final List<Token> tokens = new Lexer(input).tokenize();
+		final Statement program = new Parser(tokens).parse();
+		program.execute();
 	}
 }
