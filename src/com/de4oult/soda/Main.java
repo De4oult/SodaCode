@@ -13,13 +13,6 @@ import com.de4oult.soda.parser.ast.Statement;
 public final class Main {
 	
 	public static void main(String[] args) throws IOException {
-		/*System.out.print("Компилируемый файл >> ");
-			
-		@SuppressWarnings("resource")
-		Scanner sc = new Scanner(System.in);
-		String pathToScript = sc.nextLine();
-		System.out.println("\n\n");*/
-		
 		String pathToScript = args[0];
 		final String input = new String(Files.readAllBytes(Paths.get(pathToScript)), "UTF-8");
 		final List<Token> tokens = new Lexer(input).tokenize();

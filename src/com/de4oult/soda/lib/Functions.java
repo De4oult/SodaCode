@@ -1,5 +1,6 @@
 package com.de4oult.soda.lib;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -70,8 +71,26 @@ public final class Functions {
 				return array;
 			}
 		});
+		functions.put("typeOf", (Function) (Value... args) -> {
+			if(args.length == 0) throw new RuntimeException("Пустое значение аргумента!");
+			if(args.length > 1) throw new RuntimeException("Функция принимает лишь один аргумент!");
+
+			return new StringValue(args[0].getClass().getSimpleName());
+		});
+		functions.put("len", (Function) (Value... args) -> {
+			if(args.length == 0) throw new RuntimeException("Пустое значение аргумента!");
+			if(args.length > 1) throw new RuntimeException("Функция принимает лишь один аргумент!");
+
+			int len = 0;
+
+			if(args[0] instanceof StringValue) {
+				len = args[0].asString().length();
+			}
+			return new NumberValue(len);
+		});
 	}
-	
+
+
 	public static boolean isExists(String key) {
 		return functions.containsKey(key);
 	}
